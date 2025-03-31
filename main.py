@@ -120,7 +120,7 @@ class Game:
         if self.turn != "human":
             return
 
-        # Сброс цвета
+        # Atiestatīt krāsu
         for btn in self.sequence_buttons:
             btn.config(bg="lightgray")
 
@@ -130,7 +130,7 @@ class Game:
         else:
             # Pārbaudiet, vai atlasītie indeksi atrodas blakus viens otram
             if abs(index - self.first_selection) == 1:
-                # Подсветка обеих кнопок
+                # Abas pogas ir izgaismotas
                 self.sequence_buttons[self.first_selection].config(bg="lightgreen")
                 self.sequence_buttons[index].config(bg="lightgreen")
 
@@ -208,7 +208,7 @@ class Game:
 
     def show_tree(self):
         if self.search_tree is None:
-            messagebox.showinfo("Информация", "Дерево данных ещё не сформировано.")
+            messagebox.showinfo("Informācija”, ”Datu koks vēl nav izveidots.")
             return
         tree_str = self.tree_to_string(self.search_tree)
         tree_window = tk.Toplevel(self.master)
