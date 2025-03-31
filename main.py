@@ -1,3 +1,4 @@
+from time import sleep
 import tkinter as tk
 from tkinter import messagebox
 import random
@@ -66,6 +67,10 @@ class Game:
         self.score_label = tk.Label(self.game_frame, text="")
         self.score_label.pack(pady=10)
 
+        # Poga, gājiena apstiprināšanai kad izvēlēts pāris
+        self.do_move_button = tk.Button(self.game_frame, text="Confirm Move", command=self.do_move)
+        self.do_move_button.pack(pady=10)
+
         # Poga, lai restartētu spēli pēc tās pabeigšanas
         self.restart_button = tk.Button(self.game_frame, text="Restart", command=self.restart_game)
 
@@ -124,27 +129,29 @@ class Game:
         for btn in self.sequence_buttons:
             btn.config(bg="lightgray")
 
-        if self.first_selection is None:
-            self.first_selection = index
-            self.sequence_buttons[index].config(bg="lightblue")
-        else:
-            # Pārbaudiet, vai atlasītie indeksi atrodas blakus viens otram
-            if abs(index - self.first_selection) == 1:
-                # Abas pogas ir izgaismotas
-                self.sequence_buttons[self.first_selection].config(bg="lightgreen")
-                self.sequence_buttons[index].config(bg="lightgreen")
 
-                self.make_move(self.first_selection, index, "human")
-                self.first_selection = None
-                if not self.is_game_over():
-                    self.turn = "computer"
-                    self.update_display()
-                    self.master.after(500, self.computer_move)
-                else:
-                    self.end_game()
-            else:
-                # Ja nav blakus, atceliet atlasi
-                self.first_selection = None
+        # edge case, ja tiek izvēlēts pēdējais skaitlis sarakstā tad indeksu ieliek kā iepriekšējo skaitli
+        if index == len(self.sequence_buttons)-1:
+            index -= 1
+
+        self.first_selection = index
+        self.sequence_buttons[index].config(bg="lightblue")
+        self.sequence_buttons[index+1].config(bg="lightblue")
+
+    def do_move(self):
+        if self.first_selection is None or self.turn == "computer":
+            # Ja nav izvēlēts pāris, vai nav cilvēka gājiens, neko nedarīt
+            return
+
+        self.make_move(self.first_selection, self.first_selection+1, "human")
+        self.first_selection = None
+
+        if not self.is_game_over():
+            self.turn = "computer"
+            self.update_display()
+            self.master.after(500, self.computer_move)
+        else:
+            self.end_game()
 
     def make_move(self, index1, index2, player):
         # Garantē, ka indekss1 ir mazāks par indeksu2
@@ -176,6 +183,7 @@ class Game:
 
     def end_game(self):
         self.update_display()
+        self.do_move_button.config(state="disabled")
         if self.human_score == self.computer_score:
             result = "Draw!"
         elif self.human_score > self.computer_score:
@@ -189,6 +197,7 @@ class Game:
         self.game_frame.pack_forget()
         self.settings_frame.pack(pady=10)
         self.restart_button.pack_forget()
+        self.do_move_button.config(state="active")
 
     # Heiristiskā funkcija: novērtē stāvokli kā punktu starpību (no datora viedokļa).
     def heuristic(self, sequence, human_score, computer_score):
